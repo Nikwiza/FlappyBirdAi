@@ -25,6 +25,7 @@ class Game:
         # Timer
         self.obstacle_timer = pygame.USEREVENT + 1
         pygame.time.set_timer(self.obstacle_timer, PIPE_SPAWN_SPEED)
+        self.timestamp = 0
 
         # Font 
         self.font = pygame.font.Font(None, SCORE_SIZE)
@@ -32,10 +33,18 @@ class Game:
 
 
     def restart(self):
-        return 1 #TODO
+        self.bird.kill()
+        self.bird = Bird(self.all_sprites)
+        for sprite in self.collision_sprites:
+            if not isinstance(sprite, Ground):
+                sprite.kill()
+        self.score = 0
+        
 
     def display_score(self):
-        self.score = pygame.time.get_ticks()//1000
+        if pygame.time.get_ticks()//1000 - self.timestamp > 1:
+            self.score += 1
+            self.timestamp = pygame.time.get_ticks()//1000
 
         score_surf = self.font.render(str(self.score), True, 'black')
         score_rect = score_surf.get_rect(topleft = (0, 0))
@@ -44,8 +53,8 @@ class Game:
     def collisions(self):
         if pygame.sprite.spritecollide(self.bird, self.collision_sprites, False, pygame.sprite.collide_mask)\
             or self.bird.rect.top <=0 :
-            pygame.quit()
-            sys.exit()
+            self.timestamp = pygame.time.get_ticks()//1000
+            self.restart()
 
     def run(self):
         
