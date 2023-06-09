@@ -41,7 +41,7 @@ class Game(Env):
         #Ai
        
         self.action_space = Discrete(2)
-        self.observation_space = Box(low=-WINDOW_WIDTH, high=WINDOW_WIDTH, shape = (1, 5), dtype=np.float32)
+        self.observation_space = Box(low=-WINDOW_WIDTH, high=WINDOW_WIDTH+40, shape = (1, 5), dtype=np.float32)
         
         self.clock = pygame.time.Clock()
         pygame.init()
@@ -100,9 +100,9 @@ class Game(Env):
         # Observations
 
         if len(self.collision_sprites.sprites()) <= 1:
-            distance_to_lower_pipe_x = WINDOW_WIDTH
-            distance_to_lower_pipe_y = WINDOW_WIDTH
-            pipe_height = WINDOW_HEIGHT
+            distance_to_lower_pipe_x = -10
+            distance_to_lower_pipe_y = 10
+            pipe_height = -200
         else:
             distance_to_lower_pipe_x = self.collision_sprites.sprites()[1].rect.topleft[0] - self.bird.rect.x
             distance_to_lower_pipe_y = self.collision_sprites.sprites()[1].rect.topleft[1] - self.bird.rect.y
@@ -112,6 +112,7 @@ class Game(Env):
 
         self.observation = [distance_to_lower_pipe_x, distance_to_lower_pipe_y, agent_velocity, pipe_height, agent_y]
         self.observation = np.array(self.observation)
+        self.observation = self.observation/np.linalg.norm(self.observation)
 
         # Calculating rewards
 
@@ -156,10 +157,10 @@ class Game(Env):
 
         # Initial observation
 
-        distance_to_lower_pipe_x = WINDOW_WIDTH
-        distance_to_lower_pipe_y = WINDOW_WIDTH
+        distance_to_lower_pipe_x = -10
+        distance_to_lower_pipe_y = 10
         agent_velocity = 0
-        pipe_height = WINDOW_HEIGHT
+        pipe_height = -200
         agent_y = self.bird.rect.y
 
         #Initial reward
@@ -170,7 +171,7 @@ class Game(Env):
 
         self.observation = [distance_to_lower_pipe_x, distance_to_lower_pipe_y, agent_velocity, pipe_height, agent_y]
         self.observation = np.array(self.observation)
-
+        self.observation = self.observation/np.linalg.norm(self.observation)
 
         self.render()
 
