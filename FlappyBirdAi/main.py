@@ -5,19 +5,23 @@ from settings import *
 # Imports for NN
 
 from keras.models import Sequential
-from keras.layers import Dense, Flatten
+from keras.layers import Dense, Flatten, Dropout
 from keras.optimizers import Adam
 
 from rl.agents import DQNAgent
 from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, MaxBoltzmannQPolicy
 from rl.memory import SequentialMemory
+import matplotlib.pyplot as plt
 
 def build_model(states, actions):
     model = Sequential()
     model.add(Flatten(input_shape = states))
     model.add(Dense(64, activation = 'relu', input_shape = states))
+    model.add(Dropout(0.2))
     model.add(Dense(64, activation = 'relu'))
+    model.add(Dropout(0.3))
     model.add(Dense(64, activation = 'relu'))
+    model.add(Dropout(0.3))
     model.add(Dense(actions, activation = 'linear'))
     return model
 
@@ -38,14 +42,20 @@ if __name__ == "__main__":
     model.summary()
     print(actions, states)
 
+
+    # model.load_weights('agent_weights.h5')
     dqn = build_agent(model, actions)
+
+    
     dqn.compile(Adam(lr = 1e-2), metrics = ['mae'])
-    dqn.fit(env, nb_steps = 40000, visualize = False, verbose = 1)
+    dqn.fit(env, nb_steps = 30000, visualize = False, verbose = 1)
 
-    scores = dqn.test(env, nb_episodes = 100, visualize = False)
-    print(np.mean(scores.history['episode_rewards']))
+    scores = dqn.test(env, nb_episodes = 50, visualize = False)
+    print(np.mean(scores.history['nb_steps']))
 
-    dqn.save_weights('agent_weights.h5')
+    #Ploting the rewards
+
+    # dqn.save_weights('agent_weights.h5')
 
 
     # for episode in range (1):
